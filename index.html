@@ -1,0 +1,437 @@
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+    }
+    
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    h1 {
+        color: #667eea;
+        margin-bottom: 10px;
+        font-size: 2.5em;
+    }
+    
+    .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 1.1em;
+    }
+    
+    .control-group {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #555;
+        font-size: 1.1em;
+    }
+    
+    .value-display {
+        color: #667eea;
+        font-weight: bold;
+    }
+    
+    input[type="range"] {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: #ddd;
+        outline: none;
+        -webkit-appearance: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #667eea;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #667eea;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        border: none;
+    }
+    
+    select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1em;
+        background: white;
+        cursor: pointer;
+    }
+    
+    button {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.2em;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        transition: transform 0.2s;
+    }
+    
+    button:active {
+        transform: scale(0.98);
+    }
+    
+    .results {
+        margin-top: 40px;
+        display: none;
+    }
+    
+    .recipe {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        border-left: 5px solid #667eea;
+    }
+    
+    .recipe h3 {
+        color: #667eea;
+        margin-bottom: 15px;
+        font-size: 1.5em;
+    }
+    
+    .recipe-meta {
+        color: #666;
+        margin-bottom: 15px;
+        font-style: italic;
+    }
+    
+    .ingredients, .instructions {
+        margin-top: 15px;
+    }
+    
+    .ingredients h4, .instructions h4 {
+        color: #555;
+        margin-bottom: 10px;
+    }
+    
+    .ingredients ul, .instructions ol {
+        margin-left: 20px;
+        line-height: 1.8;
+    }
+    
+    .shopping-list {
+        background: #e8f5e9;
+        padding: 25px;
+        border-radius: 10px;
+        margin-top: 30px;
+        border-left: 5px solid #4caf50;
+    }
+    
+    .shopping-list h3 {
+        color: #2e7d32;
+        margin-bottom: 20px;
+        font-size: 1.5em;
+    }
+    
+    .category {
+        margin-bottom: 20px;
+    }
+    
+    .category h4 {
+        color: #388e3c;
+        margin-bottom: 10px;
+        font-size: 1.2em;
+    }
+    
+    .category ul {
+        margin-left: 20px;
+        line-height: 1.8;
+    }
+    
+    .budget-info {
+        background: #fff3e0;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        text-align: center;
+        font-size: 1.1em;
+        color: #e65100;
+        font-weight: 600;
+    }
+    
+    @media (max-width: 600px) {
+        .container {
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 2em;
+        }
+    }
+</style>
+    <div class="control-group">
+        <label>
+            Number of main dishes: <span class="value-display" id="dishCount">3</span>
+        </label>
+        <input type="range" id="dishes" min="2" max="4" value="3">
+    </div>
+    
+    <div class="control-group">
+        <label>
+            Weekly budget: $<span class="value-display" id="budgetAmount">500</span>
+        </label>
+        <input type="range" id="budget" min="300" max="700" step="50" value="500">
+    </div>
+    
+    <div class="control-group">
+        <label for="diet">Dietary preference:</label>
+        <select id="diet">
+            <option value="omnivore">Omnivore (everything)</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="pescatarian">Pescatarian (fish ok)</option>
+            <option value="low-carb">Low-carb</option>
+        </select>
+    </div>
+    
+    <button onclick="generateMealPlan()">Generate My Meal Plan</button>
+    
+    <div class="results" id="results"></div>
+</div>
+
+<script>
+    // Update display values as sliders move
+    document.getElementById('dishes').addEventListener('input', function() {
+        document.getElementById('dishCount').textContent = this.value;
+    });
+    
+    document.getElementById('budget').addEventListener('input', function() {
+        document.getElementById('budgetAmount').textContent = this.value;
+    });
+    
+    // Recipe database
+    const recipes = {
+        omnivore: [
+            {
+                name: "One-Pot Chicken and Rice",
+                servings: "4 meals",
+                time: "30 minutes",
+                ingredients: [
+                    "4 chicken thighs (bone-in, skin-on)",
+                    "1.5 cups long-grain rice",
+                    "3 cups chicken broth",
+                    "1 onion, diced",
+                    "3 cloves garlic, minced",
+                    "1 can (14oz) diced tomatoes",
+                    "2 tsp paprika",
+                    "Salt and pepper",
+                    "2 tbsp olive oil"
+                ],
+                instructions: [
+                    "Season chicken with salt, pepper, and paprika",
+                    "Heat oil in large pot, brown chicken on both sides (5 min), remove",
+                    "Sauté onion and garlic in same pot (3 min)",
+                    "Add rice, stir for 1 minute",
+                    "Add broth and tomatoes, bring to boil",
+                    "Place chicken on top, cover, simmer 20 minutes",
+                    "Let rest 5 minutes before serving"
+                ],
+                cost: 18
+            },
+            {
+                name: "Beef Chili",
+                servings: "5 meals",
+                time: "35 minutes",
+                ingredients: [
+                    "1.5 lbs ground beef",
+                    "2 cans (15oz each) kidney beans, drained",
+                    "1 can (28oz) crushed tomatoes",
+                    "1 onion, diced",
+                    "1 bell pepper, diced",
+                    "3 cloves garlic, minced",
+                    "3 tbsp chili powder",
+                    "1 tbsp cumin",
+                    "Salt and pepper",
+                    "Optional: shredded cheese, sour cream"
+                ],
+                instructions: [
+                    "Brown ground beef in large pot, breaking it up (8 min)",
+                    "Add onion, pepper, and garlic, cook 5 minutes",
+                    "Add chili powder and cumin, stir for 1 minute",
+                    "Add tomatoes and beans, bring to boil",
+                    "Reduce heat, simmer 20 minutes, stirring occasionally",
+                    "Season with salt and pepper to taste",
+                    "Serve with optional toppings"
+                ],
+                cost: 22
+            },
+            {
+                name: "Sheet Pan Sausage and Vegetables",
+                servings: "3 meals",
+                time: "25 minutes",
+                ingredients: [
+                    "1 lb Italian sausage (4-5 links)",
+                    "3 bell peppers, cut into strips",
+                    "2 zucchini, sliced",
+                    "1 red onion, sliced",
+                    "3 cups baby potatoes, halved",
+                    "3 tbsp olive oil",
+                    "2 tsp Italian seasoning",
+                    "Salt and pepper"
+                ],
+                instructions: [
+                    "Preheat oven to 425°F",
+                    "Toss vegetables with oil, Italian seasoning, salt, and pepper",
+                    "Spread on large baking sheet",
+                    "Nestle sausages among vegetables",
+                    "Roast 25 minutes until sausages are cooked and vegetables are tender",
+                    "Let cool 5 minutes before serving"
+                ],
+                cost: 16
+            },
+            {
+                name: "Slow-Cooker Pulled Pork",
+                servings: "6 meals",
+                time: "15 min prep (6-8 hours cooking)",
+                ingredients: [
+                    "3 lb pork shoulder",
+                    "1 onion, sliced",
+                    "1 cup BBQ sauce",
+                    "1/2 cup chicken broth",
+                    "2 tbsp brown sugar",
+                    "1 tbsp paprika",
+                    "Salt and pepper",
+                    "Burger buns or tortillas for serving"
+                ],
+                instructions: [
+                    "Rub pork with paprika, salt, and pepper",
+                    "Place onion in slow cooker, add pork on top",
+                    "Mix BBQ sauce, broth, and brown sugar, pour over pork",
+                    "Cook on low 8 hours or high 6 hours",
+                    "Shred pork with two forks, mix with sauce",
+                    "Serve on buns or in tortillas"
+                ],
+                cost: 24
+            }
+        ],
+        vegetarian: [
+            {
+                name: "Vegetable Curry with Rice",
+                servings: "4 meals",
+                time: "30 minutes",
+                ingredients: [
+                    "2 cans (15oz each) chickpeas, drained",
+                    "1 can (14oz) coconut milk",
+                    "1 can (14oz) diced tomatoes",
+                    "2 cups mixed vegetables (frozen is fine)",
+                    "1 onion, diced",
+                    "3 cloves garlic, minced",
+                    "2 tbsp curry powder",
+                    "1 tsp cumin",
+                    "2 cups rice",
+                    "Salt and pepper",
+                    "2 tbsp oil"
+                ],
+                instructions: [
+                    "Cook rice according to package directions",
+                    "Heat oil in large pot, sauté onion and garlic (3 min)",
+                    "Add curry powder and cumin, stir 1 minute",
+                    "Add chickpeas, vegetables, tomatoes, and coconut milk",
+                    "Bring to boil, reduce heat, simmer 15 minutes",
+                    "Season with salt and pepper",
+                    "Serve over rice"
+                ],
+                cost: 15
+            },
+            {
+                name: "Black Bean Quesadillas",
+                servings: "3 meals",
+                time: "20 minutes",
+                ingredients: [
+                    "2 cans (15oz each) black beans, drained",
+                    "2 cups shredded cheese",
+                    "8 large flour tortillas",
+                    "1 bell pepper, diced",
+                    "1 onion, diced",
+                    "2 tsp cumin",
+                    "1 tsp chili powder",
+                    "Salsa and sour cream for serving",
+                    "2 tbsp oil"
+                ],
+                instructions: [
+                    "Sauté pepper and onion in oil until soft (5 min)",
+                    "Add beans, cumin, and chili powder, mash roughly, heat through",
+                    "Spread bean mixture on half of each tortilla",
+                    "Top with cheese, fold tortilla in half",
+                    "Cook in dry skillet 2-3 min per side until golden and cheese melts",
+                    "Cut into wedges, serve with salsa and sour cream"
+                ],
+                cost: 14
+            },
+            {
+                name: "Pasta Primavera",
+                servings: "4 meals",
+                time: "25 minutes",
+                ingredients: [
+                    "1 lb pasta (penne or fusilli)",
+                    "3 cups mixed vegetables (broccoli, bell peppers, zucchini)",
+                    "1 cup cherry tomatoes, halved",
+                    "4 cloves garlic, minced",
+                    "1/2 cup grated Parmesan",
+                    "1/4 cup olive oil",
+                    "Juice of 1 lemon",
+                    "Fresh basil if available",
+                    "Salt and pepper"
+                ],
+                instructions: [
+                    "Cook pasta according to package, reserve 1 cup pasta water",
+                    "In last 3 minutes of cooking, add vegetables to pasta pot",
+                    "Drain pasta and vegetables",
+                    "Heat oil in large pan, sauté garlic 1 minute",
+                    "Add pasta, vegetables, tomatoes, lemon juice",
+                    "Toss with Parmesan, add pasta water if needed for sauce",
+                    "Season with salt and pepper, top with basil"
+                ],
+                cost: 16
+            }
+        ],
+        pescatarian: [
+            {
+                name: "Baked Salmon with Roasted Vegetables",
+                servings: "3 meals",
+                time: "25 minutes",
+                ingredients: [
+                    "3 salmon fillets (6oz each)",
+                    "3 cups broccoli florets",
+                    "2 cups baby potatoes, halved",
+                    "2 tbsp olive oil",
+                    "2 lemons (1 sliced, 1 for juice)",
+                    "3 cloves garlic, minced",
+                    "1 tsp dried dill",
+                    "Salt and pepper"
+                
