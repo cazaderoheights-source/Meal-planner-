@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Meals</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        h1 { color: #667eea; margin-bottom: 10px; font-size: 2.5em; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 1.1em; }
+        .control-group { margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 10px; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; color: #555; font-size: 1.1em; }
+        .value-display { color: #667eea; font-weight: bold; }
+        input[type="range"] { width: 100%; height: 8px; border-radius: 5px; background: #ddd; outline: none; -webkit-appearance: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #667eea; cursor: pointer; }
+        select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; background: white; }
+        button { width: 100%; padding: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .results { margin-top: 40px; display: none; }
+        .recipe { background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #667eea; }
+        .recipe h3 { color: #667eea; margin-bottom: 15px; font-size: 1.5em; }
+        .recipe-meta { color: #666; margin-bottom: 15px; font-style: italic; }
+        .ingredients, .instructions { margin-top: 15px; }
+        .ingredients h4, .instructions h4 { color: #555; margin-bottom: 10px; }
+        .ingredients ul, .instructions ol { margin-left: 20px; line-height: 1.8; }
+        .shopping-list { background: #e8f5e9; padding: 25px; border-radius: 10px; margin-top: 30px; border-left: 5px solid #4caf50; }
+        .shopping-list h3 { color: #2e7d32; margin-bottom: 20px; font-size: 1.5em; }
+        .category { margin-bottom: 20px; }
+        .category h4 { color: #388e3c; margin-bottom: 10px; font-size: 1.2em; }
+        .category ul { margin-left: 20px; line-height: 1.8; }
+        .budget-info { background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 1.1em; color: #e65100; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Simple Meals</h1>
+        <p class="subtitle">Weekly meal planning made easy</p>
+        <div class="control-group">
+            <label>Number of main dishes: <span class="value-display" id="dishCount">3</span></label>
+            <input type="range" id="dishes" min="2" max="4" value="3">
+        </div>
+        <div class="control-group">
+            <label>Weekly budget: $<span class="value-display" id="budgetAmount">500</span></label>
+            <input type="range" id="budget" min="300" max="700" step="50" value="500">
+        </div>
+        <div class="control-group">
+            <label for="diet">Dietary preference:</label>
+            <select id="diet">
+                <option value="omnivore">Omnivore (everything)</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="pescatarian">Pescatarian (fish ok)</option>
+            </select>
+        </div>
+        <button onclick="generateMealPlan()">Generate My Meal Plan</button>
+        <div class="results" id="results"></div>
+    </div>
+    <script>
+        document.getElementById('dishes').addEventListener('input', function() {
+            document.getElementById('dishCount').textContent = this.value;
+        });
+        document.getElementById('budget').addEventListener('input', function() {
+            document.getElementById('budgetAmount').textContent = this.value;
+        });
+        const recipes = {
+            omnivore: [
+                {name: "One-Pot Chicken and Rice", servings: "4 meals", time: "30 minutes", ingredients: ["4 chicken thighs", "1.5 cups rice", "3 cups chicken broth", "1 onion diced", "3 cloves garlic minced", "1 can diced tomatoes", "2 tsp paprika", "Salt and pepper", "2 tbsp olive oil"], instructions: ["Season chicken with salt, pepper, and paprika", "Heat oil in large pot, brown chicken on both sides (5 min), remove", "Sauté onion and garlic in same pot (3 min)", "Add rice, stir for 1 minute", "Add broth and tomatoes, bring to boil", "Place chicken on top, cover, simmer 20 minutes", "Let rest 5 minutes before serving"], cost: 18},
+                {name: "Beef Chili", servings: "5 meals", time: "35 minutes", ingredients: ["1.5 lbs ground beef", "2 cans kidney beans drained", "1 can crushed tomatoes", "1 onion diced", "1 bell pepper diced", "3 cloves garlic minced", "3 tbsp chili powder", "1 tbsp cumin", "Salt and pepper"], instructions: ["Brown ground beef in large pot (8 min)", "Add onion, pepper, and garlic, cook 5 minutes", "Add chili powder and cumin, stir 1 minute", "Add tomatoes and beans, bring to boil", "Reduce heat, simmer 20 minutes", "Season with salt and pepper"], cost: 22},
+                {name: "Sheet Pan Sausage and Vegetables", servings: "3 meals", time: "25 minutes", ingredients: ["1 lb Italian sausage", "3 bell peppers cut into strips", "2 zucchini sliced", "1 red onion sliced", "3 cups baby potatoes halved", "3 tbsp olive oil", "2 tsp Italian seasoning", "Salt and pepper"], instructions: ["Preheat oven to 425°F", "Toss vegetables with oil, Italian seasoning, salt, pepper", "Spread on large baking sheet", "Nestle sausages among vegetables", "Roast 25 minutes", "Let cool 5 minutes"], cost: 16}
+            ],
+            vegetarian: [
+                {name: "Vegetable Curry with Rice", servings: "4 meals", time: "30 minutes", ingredients: ["2 cans chickpeas drained", "1 can coconut milk", "1 can diced tomatoes", "2 cups mixed vegetables", "1 onion diced", "3 cloves garlic minced", "2 tbsp curry powder", "1 tsp cumin", "2 cups rice", "Salt and pepper", "2 tbsp oil"], instructions: ["Cook rice according to package", "Heat oil, sauté onion and garlic (3 min)", "Add curry powder and cumin, stir 1 minute", "Add chickpeas, vegetables, tomatoes, coconut milk", "Bring to boil, reduce heat, simmer 15 minutes", "Season with salt and pepper", "Serve over rice"], cost: 15},
+                {name: "Black Bean Quesadillas", servings: "3 meals", time: "20 minutes", ingredients: ["2 cans black beans drained", "2 cups shredded cheese", "8 large flour tortillas", "1 bell pepper diced", "1 onion diced", "2 tsp cumin", "1 tsp chili powder", "Salsa and sour cream", "2 tbsp oil"], instructions: ["Sauté pepper and onion in oil until soft (5 min)", "Add beans, cumin, chili powder, mash roughly", "Spread bean mixture on half of each tortilla", "Top with cheese, fold tortilla", "Cook in dry skillet 2-3 min per side until golden", "Cut into wedges, serve with salsa and sour cream"], cost: 14}
+            ],
+            pescatarian: [
+                {name: "Baked Salmon with Roasted Vegetables", servings: "3 meals", time: "25 minutes", ingredients: ["3 salmon fillets (6oz each)", "3 cups broccoli florets", "2 cups baby potatoes halved", "2 tbsp olive oil", "2 lemons", "3 cloves garlic minced", "1 tsp dried dill", "Salt and pepper"], instructions: ["Preheat oven to 400°F", "Toss vegetables with oil, garlic, salt, pepper", "Spread on baking sheet", "Place salmon on top, season with dill, salt, pepper", "Top with lemon slices", "Roast 20 minutes", "Squeeze fresh lemon juice before serving"], cost: 24}
+            ]
+        };
+        
+        function generateMealPlan() {
+            const numDishes = parseInt(document.getElementById('dishes').value);
+            const budget = parseInt(document.getElementById('budget').value);
+            const diet = document.getElementById('diet').value;
+            const availableRecipes = recipes[diet] || recipes.omnivore;
+            const shuffled = availableRecipes.sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, numDishes);
+            let totalCost = selected.reduce((sum, r) => sum + r.cost, 0);
+            let html = '<h2 style="color: #667eea; margin-bottom: 20px;">Your Meal Plan</h2>';
+            selected.forEach(recipe => {
+                html += `<div class="recipe">
+                    <h3>${recipe.name}</h3>
+                    <p class="recipe-meta">Makes ${recipe.servings} • ${recipe.time}</p>
+                    <div class="ingredients">
+                        <h4>Ingredients:</h4>
+                        <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+                    </div>
+                    <div class="instructions">
+                        <h4>Instructions:</h4>
+                        <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
+                    </div>
+                </div>`;
+            });
+            const allIngredients = {};
+            selected.forEach(recipe => {
+                recipe.ingredients.forEach(ing => {
+                    const key = ing.split(' ').slice(1).join(' ');
+                    if (!allIngredients[key]) allIngredients[key] = [];
+                    allIngredients[key].push(ing);
+                });
+            });
+            html += `<div class="shopping-list">
+                <h3>📋 Shopping List</h3>
+                <div class="category">
+                    <h4>All Ingredients:</h4>
+                    <ul>${Object.values(allIngredients).flat().map(i => `<li>${i}</li>`).join('')}</ul>
+                </div>
+            </div>`;
+            html += `<div class="budget-info">Estimated weekly cost: $${totalCost} (Budget: $${budget})</div>`;
+            document.getElementById('results').innerHTML = html;
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
