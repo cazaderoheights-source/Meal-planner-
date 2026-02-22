@@ -30,6 +30,7 @@
         .category h4 { color: #388e3c; margin-bottom: 10px; font-size: 1.2em; }
         .category ul { margin-left: 20px; line-height: 1.8; }
         .budget-info { background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 1.1em; color: #e65100; font-weight: 600; }
+        .calendar-link { display: inline-block; margin-top: 20px; padding: 15px 30px; background: #4caf50; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -84,6 +85,14 @@
             const availableRecipes = recipes[diet] || recipes.omnivore;
             const shuffled = availableRecipes.sort(() => 0.5 - Math.random());
             const selected = shuffled.slice(0, numDishes);
+            
+            // Store the meal plan in localStorage so calendar can access it
+            localStorage.setItem('mealPlan', JSON.stringify({
+                recipes: selected,
+                budget: budget,
+                diet: diet
+            }));
+            
             let totalCost = selected.reduce((sum, r) => sum + r.cost, 0);
             let html = '<h2 style="color: #667eea; margin-bottom: 20px;">Your Meal Plan</h2>';
             selected.forEach(recipe => {
@@ -116,6 +125,7 @@
                 </div>
             </div>`;
             html += `<div class="budget-info">Estimated weekly cost: $${totalCost} (Budget: $${budget})</div>`;
+            html += `<a href="calendar.html" class="calendar-link">📅 View Weekly Calendar</a>`;
             document.getElementById('results').innerHTML = html;
             document.getElementById('results').style.display = 'block';
         }
