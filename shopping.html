@@ -15,11 +15,13 @@
         .category { background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #4caf50; }
         .category h2 { color: #388e3c; margin-bottom: 15px; font-size: 1.5em; }
         .category ul { list-style: none; margin-left: 0; }
-        .category li { margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 1.1em; padding: 8px; border-radius: 5px; transition: background 0.2s; }
-        .category li:hover { background: #e8f5e9; }
-        .item-text { flex: 1; }
-        .checkbox { width: 24px; height: 24px; cursor: pointer; margin-left: 15px; }
-        .checked { text-decoration: line-through; opacity: 0.5; }
+        .item-row { margin-bottom: 15px; display: flex; align-items: center; padding: 10px; border-radius: 5px; background: white; }
+        .item-row:hover { background: #e8f5e9; }
+        .item-text { flex: 1; font-size: 1.1em; line-height: 1.6; }
+        .custom-checkbox { width: 30px; height: 30px; min-width: 30px; border: 3px solid #667eea; border-radius: 5px; margin-left: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; background: white; }
+        .custom-checkbox.checked { background: #667eea; }
+        .custom-checkbox.checked::after { content: '✓'; color: white; font-size: 20px; font-weight: bold; }
+        .checked-text { text-decoration: line-through; opacity: 0.5; }
         .meat { border-left-color: #e53935; }
         .meat h2 { color: #c62828; }
         .veggies { border-left-color: #43a047; }
@@ -36,32 +38,17 @@
         <div id="shoppingContent"></div>
     </div>
     <script>
-        // Keywords to categorize ingredients
         const meatKeywords = ['chicken', 'beef', 'pork', 'sausage', 'bacon', 'turkey', 'lamb', 'salmon', 'fish', 'shrimp', 'tuna', 'thighs', 'ground'];
         const veggieKeywords = ['onion', 'garlic', 'pepper', 'tomato', 'broccoli', 'carrot', 'potato', 'zucchini', 'spinach', 'lettuce', 'cucumber', 'celery', 'mushroom', 'bean', 'chickpea', 'vegetable', 'rice', 'pasta', 'bread', 'tortilla', 'cheese', 'milk', 'egg', 'yogurt', 'butter', 'oil', 'broth', 'coconut', 'lemon', 'lime', 'berries', 'fruit'];
         const spiceKeywords = ['salt', 'pepper', 'paprika', 'cumin', 'chili', 'oregano', 'basil', 'thyme', 'rosemary', 'cinnamon', 'ginger', 'curry', 'seasoning', 'dill', 'parsley', 'cilantro', 'italian', 'garlic powder', 'onion powder'];
         
         let allIngredients = [];
+        let checkedItems = new Set();
         
         function categorizeIngredient(ingredient) {
             const lower = ingredient.toLowerCase();
-            
-            // Check spices first (they're most specific)
-            if (spiceKeywords.some(keyword => lower.includes(keyword))) {
-                return 'spices';
-            }
-            
-            // Then check meat
-            if (meatKeywords.some(keyword => lower.includes(keyword))) {
-                return 'meat';
-            }
-            
-            // Then check veggies/other
-            if (veggieKeywords.some(keyword => lower.includes(keyword))) {
-                return 'veggies';
-            }
-            
-            // Default to veggies if unsure
+            if (spiceKeywords.some(keyword => lower.includes(keyword))) return 'spices';
+            if (meatKeywords.some(keyword => lower.includes(keyword))) return 'meat';
             return 'veggies';
         }
         
@@ -69,24 +56,27 @@
             const checkbox = document.getElementById(`check-${index}`);
             const itemText = document.getElementById(`item-${index}`);
             
-            if (checkbox.checked) {
-                itemText.classList.add('checked');
+            if (checkedItems.has(index)) {
+                checkedItems.delete(index);
+                checkbox.classList.remove('checked');
+                itemText.classList.remove('checked-text');
             } else {
-                itemText.classList.remove('checked');
+                checkedItems.add(index);
+                checkbox.classList.add('checked');
+                itemText.classList.add('checked-text');
             }
         }
         
         function refreshList() {
-            // Remove checked items from the list
             const newIngredients = [];
             allIngredients.forEach((ing, index) => {
-                const checkbox = document.getElementById(`check-${index}`);
-                if (!checkbox.checked) {
+                if (!checkedItems.has(index)) {
                     newIngredients.push(ing);
                 }
             });
             
             allIngredients = newIngredients;
+            checkedItems.clear();
             displayShoppingList();
         }
         
@@ -98,11 +88,9 @@
                 return;
             }
             
-            // Only load ingredients from storage if we haven't already
             if (allIngredients.length === 0) {
                 const mealPlan = JSON.parse(stored);
                 const recipes = mealPlan.recipes;
-                
                 recipes.forEach(recipe => {
                     recipe.ingredients.forEach(ing => {
                         allIngredients.push(ing);
@@ -110,29 +98,23 @@
                 });
             }
             
-            // Categorize ingredients
-            const categorized = {
-                meat: [],
-                veggies: [],
-                spices: []
-            };
+            const categorized = { meat: [], veggies: [], spices: [] };
             
             allIngredients.forEach((ing, index) => {
                 const category = categorizeIngredient(ing);
                 categorized[category].push({ text: ing, index: index });
             });
             
-            // Build HTML
             let html = '';
             
             if (categorized.meat.length > 0) {
                 html += `<div class="category meat">
                     <h2>🥩 Meat & Protein</h2>
                     <ul>${categorized.meat.map(item => `
-                        <li>
+                        <div class="item-row">
                             <span class="item-text" id="item-${item.index}">${item.text}</span>
-                            <input type="checkbox" class="checkbox" id="check-${item.index}" onchange="toggleItem(${item.index})">
-                        </li>
+                            <div class="custom-checkbox" id="check-${item.index}" onclick="toggleItem(${item.index})"></div>
+                        </div>
                     `).join('')}</ul>
                 </div>`;
             }
@@ -141,10 +123,10 @@
                 html += `<div class="category veggies">
                     <h2>🥬 Vegetables & Other</h2>
                     <ul>${categorized.veggies.map(item => `
-                        <li>
+                        <div class="item-row">
                             <span class="item-text" id="item-${item.index}">${item.text}</span>
-                            <input type="checkbox" class="checkbox" id="check-${item.index}" onchange="toggleItem(${item.index})">
-                        </li>
+                            <div class="custom-checkbox" id="check-${item.index}" onclick="toggleItem(${item.index})"></div>
+                        </div>
                     `).join('')}</ul>
                 </div>`;
             }
@@ -153,10 +135,10 @@
                 html += `<div class="category spices">
                     <h2>🌶️ Spices & Seasonings</h2>
                     <ul>${categorized.spices.map(item => `
-                        <li>
+                        <div class="item-row">
                             <span class="item-text" id="item-${item.index}">${item.text}</span>
-                            <input type="checkbox" class="checkbox" id="check-${item.index}" onchange="toggleItem(${item.index})">
-                        </li>
+                            <div class="custom-checkbox" id="check-${item.index}" onclick="toggleItem(${item.index})"></div>
+                        </div>
                     `).join('')}</ul>
                 </div>`;
             }
