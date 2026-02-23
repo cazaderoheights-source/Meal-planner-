@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Meal Plan - Simple Meals</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        h1 { color: #667eea; margin-bottom: 10px; font-size: 2.5em; }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
+        .recipe { background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #667eea; }
+        .recipe h3 { color: #667eea; margin-bottom: 15px; font-size: 1.5em; }
+        .recipe-meta { color: #666; margin-bottom: 15px; font-style: italic; }
+        .ingredients, .instructions { margin-top: 15px; }
+        .ingredients h4, .instructions h4 { color: #555; margin-bottom: 10px; }
+        .ingredients ul, .instructions ol { margin-left: 20px; line-height: 1.8; }
+        .shopping-list { background: #e8f5e9; padding: 25px; border-radius: 10px; margin-top: 30px; border-left: 5px solid #4caf50; }
+        .shopping-list h3 { color: #2e7d32; margin-bottom: 20px; font-size: 1.5em; }
+        .category { margin-bottom: 20px; }
+        .category h4 { color: #388e3c; margin-bottom: 10px; font-size: 1.2em; }
+        .category ul { margin-left: 20px; line-height: 1.8; }
+        .budget-info { background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 1.1em; color: #e65100; font-weight: 600; }
+        .calendar-link { display: inline-block; margin-top: 20px; padding: 15px 30px; background: #4caf50; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Planner</a>
+        <div id="results"></div>
+    </div>
+    <script>
+        function displayMealPlan() {
+            const stored = localStorage.getItem('mealPlan');
+            if (!stored) {
+                document.getElementById('results').innerHTML = '<h2 style="color: #667eea;">No meal plan found!</h2><p>Please go back and generate a meal plan first.</p>';
+                return;
+            }
+            
+            const mealPlan = JSON.parse(stored);
+            const selected = mealPlan.recipes;
+            const budget = mealPlan.budget;
+            
+            let totalCost = selected.reduce((sum, r) => sum + r.cost, 0);
+            let html = '<h2 style="color: #667eea; margin-bottom: 20px;">Your Meal Plan</h2>';
+            
+            selected.forEach(recipe => {
+                html += `<div class="recipe">
+                    <h3>${recipe.name}</h3>
+                    <p class="recipe-meta">Makes ${recipe.servings} • ${recipe.time}</p>
+                    <div class="ingredients">
+                        <h4>Ingredients:</h4>
+                        <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+                    </div>
+                    <div class="instructions">
+                        <h4>Instructions:</h4>
+                        <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
+                    </div>
+                </div>`;
+            });
+            
+            const allIngredients = {};
+            selected.forEach(recipe => {
+                recipe.ingredients.forEach(ing => {
+                    const key = ing.split(' ').slice(1).join(' ');
+                    if (!allIngredients[key]) allIngredients[key] = [];
+                    allIngredients[key].push(ing);
+                });
+            });
+            
+            html += `<div class="shopping-list">
+                <h3>📋 Shopping List</h3>
+                <div class="category">
+                    <h4>All Ingredients:</h4>
+                    <ul>${Object.values(allIngredients).flat().map(i => `<li>${i}</li>`).join('')}</ul>
+                </div>
+            </div>`;
+            
+            html += `<div class="budget-info">Estimated weekly cost: $${totalCost} (Budget: $${budget})</div>`;
+            html += `<a href="calendar.html" target="_blank" class="calendar-link">📅 View Weekly Calendar</a>`;
+            
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        // Display meal plan when page loads
+        displayMealPlan();
+    </script>
+</body>
+</html>
