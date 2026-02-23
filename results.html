@@ -9,20 +9,14 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
         .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
         h1 { color: #667eea; margin-bottom: 10px; font-size: 2.5em; }
+        h2 { color: #667eea; margin-bottom: 20px; margin-top: 10px; }
         .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
-        .recipe { background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #667eea; }
-        .recipe h3 { color: #667eea; margin-bottom: 15px; font-size: 1.5em; }
-        .recipe-meta { color: #666; margin-bottom: 15px; font-style: italic; }
-        .ingredients, .instructions { margin-top: 15px; }
-        .ingredients h4, .instructions h4 { color: #555; margin-bottom: 10px; }
-        .ingredients ul, .instructions ol { margin-left: 20px; line-height: 1.8; }
-        .shopping-list { background: #e8f5e9; padding: 25px; border-radius: 10px; margin-top: 30px; border-left: 5px solid #4caf50; }
-        .shopping-list h3 { color: #2e7d32; margin-bottom: 20px; font-size: 1.5em; }
-        .category { margin-bottom: 20px; }
-        .category h4 { color: #388e3c; margin-bottom: 10px; font-size: 1.2em; }
-        .category ul { margin-left: 20px; line-height: 1.8; }
+        .recipe-button { display: block; width: 100%; padding: 20px; margin-bottom: 15px; background: #f8f9fa; border: 2px solid #667eea; border-radius: 10px; color: #667eea; font-size: 1.2em; font-weight: bold; cursor: pointer; text-align: left; transition: all 0.3s; }
+        .recipe-button:hover { background: #667eea; color: white; }
+        .recipe-meta { color: #666; font-size: 0.9em; margin-top: 5px; font-weight: normal; }
+        .shopping-button { display: block; width: 100%; padding: 20px; margin-top: 30px; background: #4caf50; border: none; border-radius: 10px; color: white; font-size: 1.2em; font-weight: bold; cursor: pointer; }
+        .calendar-button { display: block; width: 100%; padding: 20px; margin-top: 15px; background: #ff9800; border: none; border-radius: 10px; color: white; font-size: 1.2em; font-weight: bold; cursor: pointer; }
         .budget-info { background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 1.1em; color: #e65100; font-weight: 600; }
-        .calendar-link { display: inline-block; margin-top: 20px; padding: 15px 30px; background: #4caf50; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -34,7 +28,7 @@
         function displayMealPlan() {
             const stored = localStorage.getItem('mealPlan');
             if (!stored) {
-                document.getElementById('results').innerHTML = '<h2 style="color: #667eea;">No meal plan found!</h2><p>Please go back and generate a meal plan first.</p>';
+                document.getElementById('results').innerHTML = '<h2>No meal plan found!</h2><p>Please go back and generate a meal plan first.</p>';
                 return;
             }
             
@@ -43,44 +37,34 @@
             const budget = mealPlan.budget;
             
             let totalCost = selected.reduce((sum, r) => sum + r.cost, 0);
-            let html = '<h2 style="color: #667eea; margin-bottom: 20px;">Your Meal Plan</h2>';
+            let html = '<h2>Your Meal Plan</h2>';
             
-            selected.forEach(recipe => {
-                html += `<div class="recipe">
-                    <h3>${recipe.name}</h3>
-                    <p class="recipe-meta">Makes ${recipe.servings} • ${recipe.time}</p>
-                    <div class="ingredients">
-                        <h4>Ingredients:</h4>
-                        <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
-                    </div>
-                    <div class="instructions">
-                        <h4>Instructions:</h4>
-                        <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
-                    </div>
-                </div>`;
+            // Create button for each recipe
+            selected.forEach((recipe, index) => {
+                html += `<button class="recipe-button" onclick="openRecipe(${index})">
+                    ${recipe.name}
+                    <div class="recipe-meta">Makes ${recipe.servings} • ${recipe.time}</div>
+                </button>`;
             });
-            
-            const allIngredients = {};
-            selected.forEach(recipe => {
-                recipe.ingredients.forEach(ing => {
-                    const key = ing.split(' ').slice(1).join(' ');
-                    if (!allIngredients[key]) allIngredients[key] = [];
-                    allIngredients[key].push(ing);
-                });
-            });
-            
-            html += `<div class="shopping-list">
-                <h3>📋 Shopping List</h3>
-                <div class="category">
-                    <h4>All Ingredients:</h4>
-                    <ul>${Object.values(allIngredients).flat().map(i => `<li>${i}</li>`).join('')}</ul>
-                </div>
-            </div>`;
             
             html += `<div class="budget-info">Estimated weekly cost: $${totalCost} (Budget: $${budget})</div>`;
-            html += `<a href="calendar.html" target="_blank" class="calendar-link">📅 View Weekly Calendar</a>`;
+            html += `<button class="shopping-button" onclick="openShoppingList()">📋 View Shopping List</button>`;
+            html += `<button class="calendar-button" onclick="openCalendar()">📅 View Weekly Calendar</button>`;
             
             document.getElementById('results').innerHTML = html;
+        }
+        
+        function openRecipe(index) {
+            localStorage.setItem('currentRecipeIndex', index);
+            window.open('recipe.html', '_blank');
+        }
+        
+        function openShoppingList() {
+            window.open('shopping.html', '_blank');
+        }
+        
+        function openCalendar() {
+            window.open('calendar.html', '_blank');
         }
         
         // Display meal plan when page loads
