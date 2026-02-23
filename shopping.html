@@ -10,8 +10,8 @@
         .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
         .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
         h1 { color: #2e7d32; margin-bottom: 20px; font-size: 2.5em; }
-        .refresh-button { width: 100%; padding: 15px; margin-bottom: 20px; background: #ff9800; color: white; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; cursor: pointer; }
-        .refresh-button:hover { background: #f57c00; }
+        .action-button { width: 100%; padding: 15px; margin-bottom: 20px; background: #ff9800; color: white; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; cursor: pointer; }
+        .action-button:hover { background: #f57c00; }
         .category { background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #4caf50; }
         .category h2 { color: #388e3c; margin-bottom: 15px; font-size: 1.5em; }
         .category ul { list-style: none; margin-left: 0; }
@@ -34,7 +34,7 @@
     <div class="container">
         <a href="javascript:window.close()" class="back-link">← Close</a>
         <h1>📋 Shopping List</h1>
-        <button class="refresh-button" onclick="refreshList()">🔄 Remove Checked Items</button>
+        <button class="action-button" id="actionButton" onclick="handleAction()">🔄 Remove Checked Items</button>
         <div id="shoppingContent"></div>
     </div>
     <script>
@@ -43,7 +43,9 @@
         const spiceKeywords = ['salt', 'pepper', 'paprika', 'cumin', 'chili', 'oregano', 'basil', 'thyme', 'rosemary', 'cinnamon', 'ginger', 'curry', 'seasoning', 'dill', 'parsley', 'cilantro', 'italian', 'garlic powder', 'onion powder'];
         
         let allIngredients = [];
+        let fullIngredientsList = []; // Store original list
         let checkedItems = new Set();
+        let isFiltered = false;
         
         function categorizeIngredient(ingredient) {
             const lower = ingredient.toLowerCase();
@@ -67,16 +69,28 @@
             }
         }
         
-        function refreshList() {
-            const newIngredients = [];
-            allIngredients.forEach((ing, index) => {
-                if (!checkedItems.has(index)) {
-                    newIngredients.push(ing);
-                }
-            });
+        function handleAction() {
+            if (isFiltered) {
+                // Show all items again
+                allIngredients = [...fullIngredientsList];
+                checkedItems.clear();
+                isFiltered = false;
+                document.getElementById('actionButton').textContent = '🔄 Remove Checked Items';
+            } else {
+                // Remove checked items
+                const newIngredients = [];
+                allIngredients.forEach((ing, index) => {
+                    if (!checkedItems.has(index)) {
+                        newIngredients.push(ing);
+                    }
+                });
+                
+                allIngredients = newIngredients;
+                checkedItems.clear();
+                isFiltered = true;
+                document.getElementById('actionButton').textContent = '📋 Display All Items';
+            }
             
-            allIngredients = newIngredients;
-            checkedItems.clear();
             displayShoppingList();
         }
         
@@ -96,6 +110,7 @@
                         allIngredients.push(ing);
                     });
                 });
+                fullIngredientsList = [...allIngredients]; // Save original list
             }
             
             const categorized = { meat: [], veggies: [], spices: [] };
