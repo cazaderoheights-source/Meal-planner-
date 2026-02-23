@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping List - Simple Meals</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
+        h1 { color: #2e7d32; margin-bottom: 30px; font-size: 2.5em; }
+        .category { background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #4caf50; }
+        .category h2 { color: #388e3c; margin-bottom: 15px; font-size: 1.5em; }
+        .category ul { margin-left: 20px; line-height: 2; font-size: 1.1em; }
+        .category li { margin-bottom: 8px; }
+        .meat { border-left-color: #e53935; }
+        .meat h2 { color: #c62828; }
+        .veggies { border-left-color: #43a047; }
+        .veggies h2 { color: #2e7d32; }
+        .spices { border-left-color: #fb8c00; }
+        .spices h2 { color: #e65100; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="javascript:window.close()" class="back-link">← Close</a>
+        <h1>📋 Shopping List</h1>
+        <div id="shoppingContent"></div>
+    </div>
+    <script>
+        // Keywords to categorize ingredients
+        const meatKeywords = ['chicken', 'beef', 'pork', 'sausage', 'bacon', 'turkey', 'lamb', 'salmon', 'fish', 'shrimp', 'tuna', 'thighs', 'ground'];
+        const veggieKeywords = ['onion', 'garlic', 'pepper', 'tomato', 'broccoli', 'carrot', 'potato', 'zucchini', 'spinach', 'lettuce', 'cucumber', 'celery', 'mushroom', 'bean', 'chickpea', 'vegetable', 'rice', 'pasta', 'bread', 'tortilla', 'cheese', 'milk', 'egg', 'yogurt', 'butter', 'oil', 'broth', 'coconut', 'lemon', 'lime', 'berries', 'fruit'];
+        const spiceKeywords = ['salt', 'pepper', 'paprika', 'cumin', 'chili', 'oregano', 'basil', 'thyme', 'rosemary', 'cinnamon', 'ginger', 'curry', 'seasoning', 'dill', 'parsley', 'cilantro', 'italian', 'garlic powder', 'onion powder'];
+        
+        function categorizeIngredient(ingredient) {
+            const lower = ingredient.toLowerCase();
+            
+            // Check spices first (they're most specific)
+            if (spiceKeywords.some(keyword => lower.includes(keyword))) {
+                return 'spices';
+            }
+            
+            // Then check meat
+            if (meatKeywords.some(keyword => lower.includes(keyword))) {
+                return 'meat';
+            }
+            
+            // Then check veggies/other
+            if (veggieKeywords.some(keyword => lower.includes(keyword))) {
+                return 'veggies';
+            }
+            
+            // Default to veggies if unsure
+            return 'veggies';
+        }
+        
+        function displayShoppingList() {
+            const stored = localStorage.getItem('mealPlan');
+            
+            if (!stored) {
+                document.getElementById('shoppingContent').innerHTML = '<p>No meal plan found!</p>';
+                return;
+            }
+            
+            const mealPlan = JSON.parse(stored);
+            const recipes = mealPlan.recipes;
+            
+            // Collect all ingredients
+            const allIngredients = [];
+            recipes.forEach(recipe => {
+                recipe.ingredients.forEach(ing => {
+                    allIngredients.push(ing);
+                });
+            });
+            
+            // Categorize ingredients
+            const categorized = {
+                meat: [],
+                veggies: [],
+                spices: []
+            };
+            
+            allIngredients.forEach(ing => {
+                const category = categorizeIngredient(ing);
+                categorized[category].push(ing);
+            });
+            
+            // Build HTML
+            let html = '';
+            
+            if (categorized.meat.length > 0) {
+                html += `<div class="category meat">
+                    <h2>🥩 Meat & Protein</h2>
+                    <ul>${categorized.meat.map(i => `<li>${i}</li>`).join('')}</ul>
+                </div>`;
+            }
+            
+            if (categorized.veggies.length > 0) {
+                html += `<div class="category veggies">
+                    <h2>🥬 Vegetables & Other</h2>
+                    <ul>${categorized.veggies.map(i => `<li>${i}</li>`).join('')}</ul>
+                </div>`;
+            }
+            
+            if (categorized.spices.length > 0) {
+                html += `<div class="category spices">
+                    <h2>🌶️ Spices & Seasonings</h2>
+                    <ul>${categorized.spices.map(i => `<li>${i}</li>`).join('')}</ul>
+                </div>`;
+            }
+            
+            document.getElementById('shoppingContent').innerHTML = html;
+        }
+        
+        displayShoppingList();
+    </script>
+</body>
+</html>
