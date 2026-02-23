@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe - Simple Meals</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .back-link { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
+        h1 { color: #667eea; margin-bottom: 10px; font-size: 2.5em; }
+        .recipe-meta { color: #666; margin-bottom: 30px; font-style: italic; font-size: 1.2em; }
+        .section { margin-bottom: 30px; }
+        .section h2 { color: #667eea; margin-bottom: 15px; font-size: 1.8em; }
+        .ingredients ul, .instructions ol { margin-left: 20px; line-height: 2; font-size: 1.1em; }
+        .ingredients li, .instructions li { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="javascript:window.close()" class="back-link">← Close</a>
+        <div id="recipeContent"></div>
+    </div>
+    <script>
+        function displayRecipe() {
+            const stored = localStorage.getItem('mealPlan');
+            const recipeIndex = localStorage.getItem('currentRecipeIndex');
+            
+            if (!stored || recipeIndex === null) {
+                document.getElementById('recipeContent').innerHTML = '<h1>Recipe not found!</h1>';
+                return;
+            }
+            
+            const mealPlan = JSON.parse(stored);
+            const recipe = mealPlan.recipes[parseInt(recipeIndex)];
+            
+            let html = `
+                <h1>${recipe.name}</h1>
+                <p class="recipe-meta">Makes ${recipe.servings} • ${recipe.time}</p>
+                
+                <div class="section ingredients">
+                    <h2>Ingredients</h2>
+                    <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+                </div>
+                
+                <div class="section instructions">
+                    <h2>Instructions</h2>
+                    <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
+                </div>
+            `;
+            
+            document.getElementById('recipeContent').innerHTML = html;
+        }
+        
+        displayRecipe();
+    </script>
+</body>
+</html>
