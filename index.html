@@ -17,20 +17,6 @@
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #667eea; cursor: pointer; }
         select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; background: white; }
         button { width: 100%; padding: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        .results { margin-top: 40px; display: none; }
-        .recipe { background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #667eea; }
-        .recipe h3 { color: #667eea; margin-bottom: 15px; font-size: 1.5em; }
-        .recipe-meta { color: #666; margin-bottom: 15px; font-style: italic; }
-        .ingredients, .instructions { margin-top: 15px; }
-        .ingredients h4, .instructions h4 { color: #555; margin-bottom: 10px; }
-        .ingredients ul, .instructions ol { margin-left: 20px; line-height: 1.8; }
-        .shopping-list { background: #e8f5e9; padding: 25px; border-radius: 10px; margin-top: 30px; border-left: 5px solid #4caf50; }
-        .shopping-list h3 { color: #2e7d32; margin-bottom: 20px; font-size: 1.5em; }
-        .category { margin-bottom: 20px; }
-        .category h4 { color: #388e3c; margin-bottom: 10px; font-size: 1.2em; }
-        .category ul { margin-left: 20px; line-height: 1.8; }
-        .budget-info { background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; font-size: 1.1em; color: #e65100; font-weight: 600; }
-        .calendar-link { display: inline-block; margin-top: 20px; padding: 15px 30px; background: #4caf50; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -54,7 +40,6 @@
             </select>
         </div>
         <button onclick="generateMealPlan()">Generate My Meal Plan</button>
-        <div class="results" id="results"></div>
     </div>
     <script>
         document.getElementById('dishes').addEventListener('input', function() {
@@ -63,6 +48,7 @@
         document.getElementById('budget').addEventListener('input', function() {
             document.getElementById('budgetAmount').textContent = this.value;
         });
+        
         const recipes = {
             omnivore: [
                 {name: "One-Pot Chicken and Rice", servings: "4 meals", time: "30 minutes", ingredients: ["4 chicken thighs", "1.5 cups rice", "3 cups chicken broth", "1 onion diced", "3 cloves garlic minced", "1 can diced tomatoes", "2 tsp paprika", "Salt and pepper", "2 tbsp olive oil"], instructions: ["Season chicken with salt, pepper, and paprika", "Heat oil in large pot, brown chicken on both sides (5 min), remove", "Sauté onion and garlic in same pot (3 min)", "Add rice, stir for 1 minute", "Add broth and tomatoes, bring to boil", "Place chicken on top, cover, simmer 20 minutes", "Let rest 5 minutes before serving"], cost: 18},
@@ -86,48 +72,15 @@
             const shuffled = availableRecipes.sort(() => 0.5 - Math.random());
             const selected = shuffled.slice(0, numDishes);
             
-            // Store the meal plan in localStorage so calendar can access it
+            // Store the meal plan in localStorage
             localStorage.setItem('mealPlan', JSON.stringify({
                 recipes: selected,
                 budget: budget,
                 diet: diet
             }));
             
-            let totalCost = selected.reduce((sum, r) => sum + r.cost, 0);
-            let html = '<h2 style="color: #667eea; margin-bottom: 20px;">Your Meal Plan</h2>';
-            selected.forEach(recipe => {
-                html += `<div class="recipe">
-                    <h3>${recipe.name}</h3>
-                    <p class="recipe-meta">Makes ${recipe.servings} • ${recipe.time}</p>
-                    <div class="ingredients">
-                        <h4>Ingredients:</h4>
-                        <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
-                    </div>
-                    <div class="instructions">
-                        <h4>Instructions:</h4>
-                        <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
-                    </div>
-                </div>`;
-            });
-            const allIngredients = {};
-            selected.forEach(recipe => {
-                recipe.ingredients.forEach(ing => {
-                    const key = ing.split(' ').slice(1).join(' ');
-                    if (!allIngredients[key]) allIngredients[key] = [];
-                    allIngredients[key].push(ing);
-                });
-            });
-            html += `<div class="shopping-list">
-                <h3>📋 Shopping List</h3>
-                <div class="category">
-                    <h4>All Ingredients:</h4>
-                    <ul>${Object.values(allIngredients).flat().map(i => `<li>${i}</li>`).join('')}</ul>
-                </div>
-            </div>`;
-            html += `<div class="budget-info">Estimated weekly cost: $${totalCost} (Budget: $${budget})</div>`;
-            html += `<a href="calendar.html" target="_blank" class="calendar-link">📅 View Weekly Calendar</a>`;
-            document.getElementById('results').innerHTML = html;
-            document.getElementById('results').style.display = 'block';
+            // Open results page in new tab
+            window.open('results.html', '_blank');
         }
     </script>
 </body>
